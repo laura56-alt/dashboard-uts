@@ -1,0 +1,7 @@
+import tensorflow as tf
+
+# muat model lama (.h5)
+model = tf.keras.models.load_model("model/klasifikasi.h5", compile=False)
+
+# simpan ulang ke format baru (.keras)
+model.save("model/klasifikasi.keras")
