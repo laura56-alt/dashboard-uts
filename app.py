@@ -28,4 +28,8 @@ tmp_pt.flush()
 deteksi_model = torch.load(tmp_pt.name, map_location=torch.device('cpu'))
 deteksi_model.eval()
 
+from keras.src.saving import legacy_h5_format
+
+klasifikasi_model = legacy_h5_format.load_model_from_hdf5("model/klasifikasi.h5")
+
 
