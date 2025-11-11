@@ -1,29 +1,64 @@
+# app.py
 import streamlit as st
-import matplotlib.pyplot as plt
-from io import BytesIO
+from PIL import Image
+import tensorflow as tf
+import torch
+from torchvision import transforms
+import cv2
+import numpy as np
 
-# Judul Dashboard
-st.title("Halo 👋 Ini Dashboard Pertamaku!")
-st.write("Selamat datang di dashboard Streamlit 🚀")
+# ================================
+# Load Model
+# ================================
+st.sidebar.title("Model")
+st.sidebar.write("Memuat model...")
 
-# Slider untuk memilih panjang data
-n = st.slider("Pilih jumlah data", min_value=3, max_value=10, value=5)
+# Klasifikasi
+klasifikasi_model = tf.keras.models.load_model("model/klasifikasi.h5")
 
-# Data contoh
-data = [i * 5 for i in range(1, n + 1)]
+# Deteksi
+deteksi_model = torch.load("model/deteksi.pt", map_location=torch.device('cpu'))
+deteksi_model.eval()
 
-# Buat grafik
-fig, ax = plt.subplots()
-ax.plot(data, marker='o', color='#00FF00', linewidth=2)  # hijau terang
-ax.set_title(f"Grafik Contoh dengan {n} Titik Data (Matplotlib)")
-ax.set_xlabel("Index")
-ax.set_ylabel("Nilai")
+st.title("Dashboard Klasifikasi & Deteksi Objek Alat Tulis")
 
-# Simpan figure langsung ke memori (bukan file)
-buf = BytesIO()
-fig.savefig(buf, format="png", bbox_inches="tight")
-buf.seek(0)
+# Pilih jenis prediksi
+option = st.selectbox(
+    "Pilih jenis prediksi",
+    ("Klasifikasi Gambar", "Deteksi Objek")
+)
 
-# Tampilkan gambar langsung dari memori
-st.image(buf, caption="Grafik Contoh (Hijau) 💚", use_container_width=True)
+# Upload gambar
+uploaded_file = st.file_uploader("Upload gambar", type=["jpg", "png", "jpeg"])
 
+def predict_klasifikasi(image):
+    img = image.resize((224,224))  # sesuaikan dengan input modelmu
+    img_array = np.array(img)/255.0
+    img_array = np.expand_dims(img_array, axis=0)
+    pred = klasifikasi_model.predict(img_array)
+    class_idx = np.argmax(pred)
+    return f"Hasil klasifikasi: Kelas {class_idx}"
+
+def predict_deteksi(image):
+    # Convert PIL ke array numpy
+    img = np.array(image)
+    img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
+    # Transform ke tensor
+    transform = transforms.ToTensor()
+    img_tensor = transform(img).unsqueeze(0)
+    # Prediksi
+    with torch.no_grad():
+        outputs = deteksi_model(img_tensor)
+    return f"Hasil deteksi: {outputs}"
+
+
+if uploaded_file is not None:
+    image = Image.open(uploaded_file)
+    st.image(image, caption='Gambar yang diupload', use_column_width=True)
+    
+    if option == "Klasifikasi Gambar":
+        hasil = predict_klasifikasi(image)
+        st.write(hasil)
+    else:
+        hasil = predict_deteksi(image)
+        st.write(hasil)
