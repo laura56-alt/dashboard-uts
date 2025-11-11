@@ -75,5 +75,11 @@ if uploaded_file is not None:
     else:
         hasil = predict_deteksi(image)
         st.write(hasil)
-klasifikasi_model = tf.keras.models.load_model("model/klasifikasi.keras")
+klasifikasi_model = tf.keras.models.load_model(
+    "model/klasifikasi.h5",
+    compile=False
+)
+klasifikasi_model.compile()
+
+
 
