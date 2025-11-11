@@ -1,19 +1,21 @@
 import tempfile, requests
 
-# URL langsung download Google Drive atau Hugging Face
-url_klasifikasi = "LINK_DOWNLOAD_KLASIFIKASI"
-response = requests.get(url_klasifikasi)
+# === Muat Model Klasifikasi ===
+file_id_klasifikasi = "MASUKKAN_ID_FILE_H5"
+url_klasifikasi = f"https://drive.google.com/uc?export=download&id={file_id_klasifikasi}"
+r = requests.get(url_klasifikasi)
 tmp_h5 = tempfile.NamedTemporaryFile(delete=False)
-tmp_h5.write(response.content)
+tmp_h5.write(r.content)
 tmp_h5.flush()
-
 klasifikasi_model = tf.keras.models.load_model(tmp_h5.name)
 
-url_deteksi = "LINK_DOWNLOAD_DETEKSI"
-response = requests.get(url_deteksi)
+# === Muat Model Deteksi ===
+file_id_deteksi = "MASUKKAN_ID_FILE_PT"
+url_deteksi = f"https://drive.google.com/uc?export=download&id={file_id_deteksi}"
+r = requests.get(url_deteksi)
 tmp_pt = tempfile.NamedTemporaryFile(delete=False)
-tmp_pt.write(response.content)
+tmp_pt.write(r.content)
 tmp_pt.flush()
-
 deteksi_model = torch.load(tmp_pt.name, map_location=torch.device('cpu'))
+deteksi_model.eval()
 
