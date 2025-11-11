@@ -1,8 +1,9 @@
-tensorflow==2.15.0
-torch==2.3.0
-torchvision==0.18.0
+tensorflow
+torch
+torchvision
 opencv-python-headless
 Pillow
 numpy
 streamlit
+
 
