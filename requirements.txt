@@ -1,9 +1,8 @@
+streamlit
 tensorflow
+ultralytics
+pillow
+opencv-python
+numpy
 torch
 torchvision
-opencv-python-headless
-Pillow
-numpy
-streamlit
-
-
